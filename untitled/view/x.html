@@ -1,0 +1,406 @@
+
+<!DOCTYPE html>
+
+<html lang="cmn-Hans-CN">
+<head>
+    <!-- Required meta tags -->
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0, minimum-scale=1.0, shrink-to-fit=no">
+    <meta name="author" content="zdd">
+    <meta name="description" content="order" />
+    <meta name="keywords" content="order, orderList" />
+    <meta name="robots" content="noindex, nofollow" />
+
+    <meta name="full-screen" content="yes">
+    <meta name="x5-fullscreen" content="true">
+
+    <!-- Bootstrap CSS -->
+    <link href="../css/bootstrap.css" rel="stylesheet">
+    <!-- 引入 WeUI -->
+    <link href="../css/weixin.css" rel="stylesheet">
+    <!-- 自己的样式表 -->
+    <!--<link href="~/css/buycar/buycar2.css" rel="stylesheet">-->
+    <!-- short icon-->
+    <!--<link href="~/favicon.ico" rel="shortcut icon" type="image/x-icon">-->
+    <!--<link href="~/favicon.ico" rel="icon" type="image/x-icon">-->
+    <!--<link href="~/images/apple-touch-icon.png" rel="apple-touch-icon" type="image/png">-->
+    <title>已提交商品</title>
+</head>
+<body ontouchstart>
+<div class="custom-container">
+    <div id="void_page" style="display:none;">
+        <div class="text-center">
+            <img src="~/images/empty.jpg" width="300" />
+        </div>
+        <h4 id="void_reason" class="mt-4 text-center text-muted">网络出现问题</h4>
+    </div>
+    <div class="cell-container">
+        <div class="weui-cells">
+
+        </div>
+    </div>
+
+    <div id="buycar">
+        <div class="bottom-container" style="max-width: 100vw;">
+            <div id="total-money-container" style="width: 400px; background: white; border: 1px solid #eee;"><span style="padding-left: 20px;">合计: </span><span id="money">0</span></div>
+            <button id="mt" class="btn" style="background: #1aad19; color: white;border-radius: 0;">进入订单类型</button>
+        </div>
+    </div>
+
+    <div id="loadingToast" style="display:none;">
+        <div class="weui-mask_transparent"></div>
+        <div class="weui-toast">
+            <i class="weui-loading weui-icon_toast"></i>
+            <p class="weui-toast__content">数据加载中</p>
+        </div>
+    </div>
+
+    <div id="toast" style="display: none;">
+        <div class="weui-mask_transparent"></div>
+        <div class="weui-toast">
+            <i class="weui-icon-success-no-circle weui-icon_toast"></i>
+            <p class="weui-toast__content">已完成</p>
+        </div>
+    </div>
+</div>
+
+<!-- Optional JavaScript -->
+<!-- jQuery first, then Popper.js, then Bootstrap JS -->
+<script src="../js/jquery.js"></script>
+<!--<script src="~/js/popper.min.js"></script>-->
+<!--<script src="~/js/bootstrap.min.js"></script>-->
+<!--<script src="~/js/mescroll.min.js"></script>-->
+<!--<script src="~/js/weui.min.js"></script>-->
+<script>
+    import {error} from "./sweetalert2/src/utils/utils";
+
+    window.alert = function (name) {
+        var iframe = document.createElement("IFRAME");
+        iframe.style.display = "none";
+        iframe.setAttribute("src", 'data:text/plain,');
+        document.documentElement.appendChild(iframe);
+        window.frames[0].window.alert(name);
+        iframe.parentNode.removeChild(iframe);
+    }
+    //重写confirm方法，去掉地址显示
+    window.confirm = function (name) {
+        var iframe = document.createElement("IFRAME");
+        iframe.style.display = "none";
+        iframe.setAttribute("src", 'data:text/plain,');
+        document.documentElement.appendChild(iframe);
+        var result = window.frames[0].window.confirm(name);
+        iframe.parentNode.removeChild(iframe);
+        return result;
+    }
+    window.prompt = function (name) {
+        var iframe = document.createElement("IFRAME");
+        iframe.style.display = "none";
+        iframe.setAttribute("src", 'data:text/plain,');
+        document.documentElement.appendChild(iframe);
+        var result = window.frames[0].window.prompt(name);
+        iframe.parentNode.removeChild(iframe);
+        return result;
+    }
+
+    $(function () {
+        var page = { num: 1, size: 5000 };
+
+        var list = [];
+        getBuycarList();
+        //var dbName = 'mf_buycar';
+        //var dbVersion = 1;
+        //// 数据库数据结果
+        //var db;
+        //var DBOpenRequest = window.indexedDB.open(dbName, dbVersion);
+
+        //DBOpenRequest.onsuccess = function (event) {
+        //    // 存储数据结果
+        //    db = DBOpenRequest.result;
+        //    getDB();
+        //};
+
+        //// 下面事情执行于：数据库首次创建版本，或者window.indexedDB.open传递的新版本（版本数值要比现在的高）
+        //DBOpenRequest.onupgradeneeded = function (event) {
+        //    var db = event.target.result;
+        //    // 创建一个数据库存储对象
+        //    db.createObjectStore(dbName, { keyPath: 'ID', autoIncrement: false });
+        //    console.log('create success');
+        //};
+        a(1);
+        let a = function (a)     {
+
+        }
+
+        function buyCarOperator(materialModel, count) {
+
+            let $successToast = $('#toast');
+            let $loadingToast = $('#loadingToast');
+//                $successToast.fadeIn(100);
+            $loadingToast.fadeIn(100);
+            $.ajax({
+                type: 'POST',
+                data: JSON.stringify({
+                    OpenId: '@ViewData["openId"]',
+                    ShoppingCarts: [
+                        {
+                            OpenId: '@ViewData["openId"]',
+                            Id: parseInt(materialModel.ID),
+                            ProductName: materialModel.Name,
+                            ProductId: parseInt(materialModel.ID),
+                            Numbers: parseInt(count),
+                            Price: materialModel.Price
+                        }
+                    ]
+                }),
+                dataType: 'json',
+                contentType: "application/json; charset=utf-8",
+                url: 'https://v.gopas.com.cn/jiaqi/api/Agent/AddShoppingCart',
+                success: function (curPageData) {
+                    console.log();
+                    if (curPageData.Code === 200) {
+                        $loadingToast.fadeOut(100);
+                        $successToast.fadeIn(100);
+                        setTimeout(function() {
+                            $successToast.fadeOut(100);
+                        }, 1000);
+                    } else {
+                        $loadingToast.fadeOut(100);
+                    }
+                },
+                error: function (e) {
+                    console.log(e);
+                    $loadingToast.fadeOut(100);
+                },
+                complete: function() {
+                    $loadingToast.fadeOut(100);
+                }
+            });
+        }
+
+        function put(materialModel, count) {
+            let $successToast = $('#toast');
+            let $loadingToast = $('#loadingToast');
+//                $successToast.fadeIn(100);
+            $loadingToast.fadeIn(100);
+            $.ajax({
+                type: 'POST',
+                data: JSON.stringify({
+                    OpenId: '@ViewData["openId"]',
+                    ShoppingCarts: [
+                        {
+                            OpenId: '@ViewData["openId"]',
+                            Id: parseInt(materialModel.ID),
+                            ProductName: materialModel.Name,
+                            ProductId: parseInt(materialModel.ID),
+                            Numbers: parseInt(count),
+                            Price: materialModel.Price,
+                            UnitId: materialModel.UnitId
+                        }
+                    ]
+                }),
+                dataType: 'json',
+                contentType: "application/json; charset=utf-8",
+                url: 'https://v.gopas.com.cn/jiaqi/api/Agent/AddShoppingCart',
+                success: function (curPageData) {
+                    console.log();
+                    if (curPageData.Code === 200) {
+                        $loadingToast.fadeOut(100);
+                        $successToast.fadeIn(100);
+                        setTimeout(function() {
+                            $successToast.fadeOut(100);
+                        }, 1000);
+                    } else {
+                        $loadingToast.fadeOut(100);
+                    }
+                },
+                error: function (e) {
+                    console.log(e);
+                    $loadingToast.fadeOut(100);
+                },
+                complete: function() {
+                    $loadingToast.fadeOut(100);
+                }
+            });
+        }
+
+        function deleteItem(item) {
+//                var transaction = db.transaction([dbName], "readwrite");
+//                // 打开已经存储的数据对象
+//                var objectStore = transaction.objectStore(dbName);
+//                var objectStoreRequest = objectStore.delete(ID);
+//                objectStoreRequest.onsuccess = function (event) {
+//                    $('#' + ID).remove();
+//                    setPrice();
+//                };
+        }
+
+        function getBuycarList() {
+//                $('.cell-container').addClass('cc-container');
+//                var transaction = db.transaction([dbName], 'readwrite');
+//
+//                var objectStore = transaction.objectStore(dbName);
+//
+//                var request = objectStore.openCursor();
+//
+//                request.onsuccess = function (event) {
+//                    var cursor = event.target.result;
+//                    if (cursor) {
+//                        list.push(cursor.value);
+//                        cursor.continue();
+//                    } else {
+//                        //所有结果都取出,可以使用buycarList
+//                        setListData(list);
+//                    }
+//                };
+            let $loadingToast = $('#loadingToast');
+//                $successToast.fadeIn(100);
+            $loadingToast.fadeIn(100);
+            $.ajax({
+                type: 'GET',
+                dataType: 'json',
+                contentType: "application/json; charset=utf-8",
+                url: 'https://v.gopas.com.cn/jiaqi/api/Agent/GetShoppingCart?openid=oIIVi0bBVgMFRhOR2lHAIwJNWhsU',
+                success: function (curPageData) {
+                    if (curPageData.Code === 200) {
+                        $loadingToast.fadeOut(100);
+                        let tempList = curPageData.Datas;
+                        setListData(tempList);
+                    } else {
+                        $loadingToast.fadeOut(100);
+                        $('.cell-container').removeClass('cc-container');
+                        $('#void_page').show();
+                        $('#void_reason').text(curPageData.Message);
+                    }
+                },
+                error: function (e) {
+                    console.log(e);
+                    $loadingToast.fadeOut(100);
+                    $('.cell-container').removeClass('cc-container');
+                    $('#void_page').show();
+                    $('#void_reason').text(e);
+                },
+                complete: function() {
+                    $loadingToast.fadeOut(100);
+                }
+            });
+        }
+
+        function setPrice(tempList) {
+            let prices = 0;
+            tempList.forEach(item => {
+                prices += item.Numbers * item.Price;
+            });
+            $('#money').text(prices);
+        }
+
+
+        function setListData(list) {
+            var result = '';
+            let prices = 0;
+            for (var i = 0; i < list.length; i++) {
+                prices += list[i].Numbers * list[i].Price;
+                var jsonStr = JSON.stringify(list[i]);
+                console.log(jsonStr);
+                result +=
+                    '<div class="weui-media-box weui-media-box_text" id=' + list[i].ID + '>' +
+                    '<h4 class="weui-media-box__title">' + list[i].Name + '</h4>' +
+                    '<p class="weui-media-box__desc">' + list[i].ItemNumbers + '</p>' +
+                    '<p class="weui-media-box__title text-danger">' + '单价：' + list[i].Price + '</p>' +
+                    '<p class="weui-media-box__title text-danger">' + '数量：' + '<span index=""+i class=' + list[i].ID + '>' + list[i].Numbers + '</span>' + '</p>' +
+                    '<div class="mf_button_container">' +
+                    '<button id="mf_add" index=""+i class="btn btn-light" data-flag=' + list[i].ID + '>' + '编辑' + '</button>' +
+                    '<button id="mf_delete" class="btn btn-danger"data-flag=' + list[i].ID + '>' + '删除' + '</button>' +
+                    '</div>'+
+                    '</div>'
+            }
+            $('#money').text(prices);
+            if (list.length > 0) {
+                $('.weui-cells').append(result);
+            } else {
+                $('.cell-container').removeClass('cc-container');
+                $('#void_page').show();
+                $('#void_reason').text('材料为空');
+            }
+        }
+
+
+        $('.weui-cells').on('click', '#mf_delete', function () {
+            var data_flag = $(this).attr('data-flag');
+
+            var materialModel = null;
+            for (var i = 0; i < list.length; i++) {
+                if (list[i].ID == data_flag) {
+                    materialModel = list[i];
+                    break;
+                }
+            }
+            var $loadingToast = $('#loadingToast');
+            var $successToast = $('#toast');
+            if ($loadingToast.css('display') !== 'none') return false;
+            if ($successToast.css('display') !== 'none') return false;
+            deleteItem({
+                OpenId: '@ViewData["openId"]',
+                ShoppingCarts: [
+                    {
+                        OpenId: '@ViewData["openId"]',
+                        Id: parseInt(materialModel.ID),
+                        ProductName: materialModel.Name,
+                        ProductId: parseInt(materialModel.ID),
+                        Numbers: parseInt(count),
+                        Price: materialModel.Price,
+                        UnitId: materialModel.ItemNumbers
+                    }
+                ]
+            });
+        });
+
+        $('.weui-cells').on('click', '#mf_add', function () {
+            var data_flag = $(this).attr('data-flag');
+
+            var materialModel = null;
+            for (var i = 0; i < list.length; i++) {
+                if (list[i].ID == data_flag) {
+                    materialModel = list[i];
+                    break;
+                }
+            }
+
+            var $loadingToast = $('#loadingToast');
+            var $successToast = $('#toast');
+            if ($loadingToast.css('display') != 'none') return false;
+            if ($successToast.css('display') != 'none') return false;
+
+            var count = prompt("请填写物品数量");
+            if (count && !isNaN(count)) {
+
+                put({
+                    OpenId: '@ViewData["openId"]',
+                    ShoppingCarts: [
+                        {
+                            OpenId: '@ViewData["openId"]',
+                            Id: parseInt(materialModel.ID),
+                            ProductName: materialModel.Name,
+                            ProductId: parseInt(materialModel.ID),
+                            Numbers: parseInt(count),
+                            Price: materialModel.Price,
+                            UnitId: materialModel.ItemNumbers
+                        }
+                    ]
+                });
+            }
+        });
+
+
+        $('button#mt').on('click', function () {
+            if (list.length) {
+                // window.location.href = "@Url.Action("OrderType", "OrderType")" + "?openid=" + '@ViewData["openId"]';
+            } else {
+                alert('请先添加材料！');
+                return false;
+            }
+        });
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+
+    <div id="app">
+       <button @click="destory">销魂vm</button>
+        <div v-show="show">显示一下</div>
+    </div>
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<script>
+
+    new Vue({
+        el:"#app",
+        data:{
+            show:true
+        },
+        mounted(){
+            this.intervalID=setInterval(()=>{
+                console.log("sss")
+                this.show=!this.show
+            },1000)
+        },
+        methods:{
+            destory(){
+                this.$destroy();
+            }
+        },
+        beforeDestroy(){
+            clearInterval(this.intervalID);
+        }
+    })
+</script>
+</body>
+</html>

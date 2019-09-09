@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+
+    <style>
+        .aClass{
+            color: red;
+        }
+        .bClass {
+            color:blue;
+        }
+        .cClass {
+            font-size: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+    <p :class="a">class字符串绑定</p>
+    <p class="cClass" :class="a">class字符串绑定,静态属性</p>
+    <p :class="{aClass:isA,bClass:isB}">class对象绑定</p>
+    <p :class="['bClass','cClass']">class数组绑定</p>
+
+     <p :style="{color:Acolor,fontSize:fontSize+'px'}">style属性动态绑定</p>
+    <button @click="update">更新颜色</button>
+
+    </div>
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<script>
+    new Vue({
+        el:"#app",
+        data:{
+            a:"aClass",
+            isA:true,
+            isB:false,
+            Acolor:'pink',
+            fontSize:30
+        },
+        methods:{
+            update(){
+                this.a="bClass"
+                this.isA=false
+                this.isB=true
+            }
+        }
+    })
+</script>
+</body>
+</html>

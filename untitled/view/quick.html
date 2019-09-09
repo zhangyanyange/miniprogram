@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>快速开始</title>
+    <style>
+        .center {
+            text-align: center;
+        }
+
+        .font-size {
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+<h1 class="center">快速迭代</h1>
+<p class="font-size">1.启动</p>
+<p class="font-size">2.下载</p>
+<p>3.重启</p>
+<script type="module">
+    class Dog {
+        constructor(header, foot) {
+            this.header = header;
+            this.foot = foot;
+        }
+
+        run() {
+            console.log('run')
+        }
+    }
+
+    let dog = new Dog('header', 'foot');
+    console.log(dog.header);
+    dog.run();
+</script>
+</body>
+</html>

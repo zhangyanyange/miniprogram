@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>计算属性</title>
+</head>
+<body>
+<div id="app">
+    <div>{{a}}</div>
+    <div>{{b}}</div>
+</div>
+<!-- 开发环境版本，包含了有帮助的命令行警告 -->
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<script>
+    let vm = new Vue({
+        el:'#app',
+        data:{
+            a:1
+        },
+        computed:{
+            b:{
+                get:function () {
+                    return this.a+1
+                },
+                set:function (val) {
+                    this.a=val;
+                }
+            }
+        }
+    });
+    document.onclick=function () {
+        vm.b=11;
+    }
+</script>
+</body>
+</html>

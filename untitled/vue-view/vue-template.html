@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>全局组件</title>
+</head>
+<body>
+
+<div id="box">
+  <aaa></aaa>
+    <div>{{b}}</div>
+</div>
+<!-- 开发环境版本，包含了有帮助的命令行警告 -->
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<script>
+    let vue = Vue.extend({
+        template:'<h3 @click="showDialog()">{{msg}}</h3>',
+        data(){
+            return {
+                msg:'消息'
+            }
+        },
+        methods:{
+            showDialog:function () {
+                alert('dialog');
+            }
+        },
+        computed: {
+            b:function () {
+                return this.msg+"通知"
+            }
+        }
+    });
+   Vue.component('aaa',vue);
+   let vue1 = new vue({
+       el:'#box'
+   });
+</script>
+</body>
+</html>

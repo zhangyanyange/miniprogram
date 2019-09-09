@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>彩票福利</title>
+</head>
+<body>
+
+<script>
+    let 前驱=[];
+    for(let i=1;i<36;i++){
+        前驱.push(i);
+    }
+    let list1=[];
+    for(let i=0;i<5;i++){
+        let random=getRandomInt(前驱.length);
+       let 前= 前驱[random];
+       list1.push(前)
+       前驱.splice(random,1);
+    }
+    console.log(list1)
+    function getRandomInt(max) {
+        return Math.floor(Math.random() * Math.floor(max));
+    }
+
+    let 后驱=[];
+    for(let i=1;i<13;i++){
+        后驱.push(i);
+    }
+    let list2=[];
+    for(let i=0;i<2;i++){
+        let random=getRandomInt(后驱.length);
+        let 后= 后驱[random];
+        list2.push(后)
+        后驱.splice(random,1);
+    }
+    console.log(list2)
+</script>
+</body>
+</html>

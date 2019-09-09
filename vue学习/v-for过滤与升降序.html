@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+
+    <div id="app">
+        <input type="text" v-model="searchModel">
+        <ul>
+            <li v-for="(p,index) in searchPersons">{{index}}---{{p.name}}---{{p.age}}</li>
+        </ul>
+        <button @click="setPersonType(1)">升序排列</button>
+        <button @click="setPersonType(2)">降序排列</button>
+        <button @click="setPersonType(0)">原序排列</button>
+    </div>
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<script>
+    new Vue({
+        el:"#app",
+        data:{
+            searchModel:"",
+            PersonType:0,
+            persons:[
+                {
+                    name:"jack",
+                    age:14
+                },
+                {
+                    name:"tom",
+                    age:20
+                },
+                {
+                    name:"zoom",
+                    age:16
+                },
+                {
+                    name:"font",
+                    age:17
+                }
+            ]
+        },
+        computed: {
+            searchPersons(){
+                const {searchModel,persons,PersonType}=this;
+                const searchPersons=persons.filter(p=>p.name.indexOf(searchModel)!==-1);
+                if(PersonType!==0){
+                    if(PersonType===1){
+                        searchPersons.sort((p1,p2)=>p1.age-p2.age)
+                    }else {
+                        searchPersons.sort((p1, p2) => p2.age - p1.age)
+                    }
+                }
+                return searchPersons;
+            }
+        },
+        methods:{
+            setPersonType(type){
+                this.PersonType=type;
+            }
+        }
+    })
+  </script>
+</body>
+</html>

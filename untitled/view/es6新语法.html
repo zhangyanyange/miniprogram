@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+ <button id="btn1">点击</button>
+
+ <script src="../js/jquery.js"></script>
+<script>
+    let obj1 ={
+        name:'xx',
+        get fullName(){
+           return this.name;
+        },
+        set fullName(data){
+          this.name=data;
+            console.log(data)
+        }
+    }
+    obj1.fullName="张岩";
+    console.log(obj1.fullName)
+
+
+    let arr=["1","2","3","4"];
+    let arr1=arr.map(function (value,index) {
+        console.log(index)
+        if(index===1){
+           return value+10
+        }
+        return value
+    })
+    console.log(arr1)
+
+    //箭头函数
+    //没有形参
+    let fun=()=>console.log("111");
+    //1个形参,可省略（）
+    let fun1=a=>console.log(a);
+    //2个形参,不可省略()
+    let fun2=(x,y)=>x+y;
+    //多条语句
+    let fun3=(x,y)=>{
+        console.log(this)
+        console.log(x,y);
+        return x+y
+    }
+    fun();
+    fun1("222");
+    console.log(fun2(24,23));
+    console.log(fun3(90,1));
+    let f={
+        x:10,
+        foo:function () {
+            this.id=10;
+            setTimeout(function() {
+                console.log('id:', this.x);
+            }, 100);
+        }
+    }
+
+    //f.foo()
+    //箭头函数自己没有this,在哪个函数里用this代表谁
+
+    //promise 回调函数
+    let promise=new Promise((resolve,reject)=>{
+        console.log("1111");
+        //异步操作
+        setTimeout(function () {
+            console.log('222');
+            resolve("333");
+        },1000)
+    });
+     promise.then((data)=>{//成功
+         console.log(data)
+     },(error)=>{//失败
+         console.log(error)
+     })
+
+    function value(url) {
+        let promise=new Promise((resolve,reject)=>{
+             $.ajax({
+                 url:url,
+                 method:"GET",
+                 success(res){
+                    resolve(res);
+                 },
+                 fail(error){
+                    reject(error)
+                 }
+             })
+         })
+        return promise;
+    }
+
+    value("http://localhost:12899/api/Values/6")
+        .then((data)=>{
+            console.log(data)
+            return value(`http://localhost:12899/api/Values/${data}`)
+        }
+    , (error)=>{
+
+        })
+        .then((data)=>{
+            console.log(data)
+        },()=>{
+
+        })
+</script>
+</body>
+</html>

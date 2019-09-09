@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        [v-cloak] {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+<div id="app">
+    <p ref="content">我是谁</p>
+    <button @click="msg">显示消息</button>
+    <p v-cloak>{{msg1}}</p>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<script>
+    alert("xxx")
+    new Vue({
+        el:"#app",
+        data:{
+            msg:"xxx"
+        },
+        methods:{
+            msg1(){
+                alert(this.$refs.content.textContent);
+            }
+        }
+    })
+</script>
+</body>
+</html>

@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <title>验证防伪</title>
+</head>
+<link rel="stylesheet" href="node_modules/weui/dist/style/weui.css">
+<style>
+    .header {
+        width: 100%;
+    }
+
+    .background {
+        background: url("img/background.jpg") no-repeat;
+        background-size: 100% 56px;
+        text-align: center;
+    }
+
+    .input {
+        background-color: #fff;
+        width: 200px;
+        padding: 4px;
+        margin-left: 52px;
+    }
+
+    input::-webkit-input-placeholder {
+       color:#000
+      }
+    .picLUp{
+        background: url(img/erweima.png) no-repeat;
+        width: 100%;
+        background-size:cover;
+        color: #fff;
+        text-align: center;
+        font-size: 14px;
+    }
+</style>
+<body>
+<div id="loadingToast" style="display:none;">
+    <div class="weui-toast">
+        <i class="weui-loading weui-icon_toast"></i>
+        <p class="weui-toast__content">获取详情</p>
+    </div>
+</div>
+<div id="dialog1" style="display: none;">
+    <div class="weui-mask"></div>
+    <div class="weui-dialog">
+        <div class="weui-dialog__hd"><strong class="weui-dialog__title"></strong></div>
+        <div class="weui-form-preview__hd">
+            <label class="weui-form-preview__label">产品名称</label>
+            <em class="weui-form-preview__value" style="font-size: 14px" id="name"></em>
+        </div>
+        <div class="weui-form-preview__hd">
+            <label class="weui-form-preview__label">产品品牌</label>
+            <em class="weui-form-preview__value" style="font-size: 14px" id="brand"></em>
+        </div>
+        <div class="weui-form-preview__hd">
+            <label class="weui-form-preview__label">产品区域</label>
+            <em class="weui-form-preview__value" style="font-size: 14px" id="region"></em>
+        </div>
+        <div class="weui-dialog__ft">
+            <a href="javascript:;" class="weui-dialog__btn weui-dialog__btn_primary" id="confim">确定</a>
+        </div>
+    </div>
+</div>
+
+<img src="img/header.png" class="header" style="display: block">
+<div class="background">
+    <div class="weui-cell">
+        <div class="weui-cell__bd">
+            <input class="weui-input input" type="text" placeholder="请输入产品包装盒底部6位防伪码" id="code"
+                   style="border-radius: 4px;font-size: 12px"/>
+        </div>
+        <a href="javascript:;" class="weui-btn weui-btn_mini weui-btn_primary" style="background-color: rgb(59,42,98)"
+           id="query">查询</a>
+    </div>
+</div>
+<div class="picLUp">* 请打开包装盒底部折扣，6位编码印刷于折扣上</div>
+
+<!--<img src="img/erweima.png" class="header" style="display: block">-->
+<script src="js/zepot.js">
+</script>
+<script>
+    $(function () {
+
+        let width=$('.picLUp').width();
+        $('.picLUp').height(width*548/1080)
+        $('#query').click(function () {
+            let val = $('#code').val();
+            if (val === '') {
+                alert('请填写验证码')
+                return
+            }
+            $.ajax({
+                url: 'https://gopasqrcode.microfeel.net/verify',
+                data: {
+                    'outerCode': 't7qc7lcvgb5l3908jxt2',
+                    'verifyCode': val
+                },
+                type: 'GET',
+                beforeSend: function (res) {
+                    $("#loadingToast").show();
+                },
+                success: function (res) {
+                    switch (res.result) {
+                        case 0:
+                        case 1:
+                            $('.weui-dialog__title').text(res.message);
+                            $('#name').text(res.product.name);
+                            $('#brand').text(res.product.brand);
+                            $('#region').text(res.product.region);
+                            $('#dialog1').show();
+                            break;
+                        case 2:
+                        case 3:
+                            alert(res.message);
+                            break
+                    }
+                },
+                error: function (res) {
+                    alert(JSON.stringify(res));
+                },
+                complete: function () {
+                    $("#loadingToast").hide();
+                }
+            })
+        });
+        $('#confim').click(function () {
+            $('#dialog1').hide();
+        })
+        let timeout = setTimeout(function () {
+            clearTimeout()
+        }, 300);
+    });
+</script>
+</body>
+</html>

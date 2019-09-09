@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<div id="app">
+姓:<input v-model="firstName">
+名:<input v-model="lastName">
+姓名:<input v-model="fullName">
+姓名1:<input v-model="fullName1">
+姓名2:<input v-model="fullName2">
+</div>
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<script>
+    const vm=new Vue({
+        el:"#app",
+        data:{
+            firstName:"张",
+            lastName:"岩",
+            fullName1:'',
+            fullName2:''
+        },
+        computed:{
+            fullName(){
+                return this.firstName+this.lastName
+            }
+        },
+        //监视数据
+        watch:{
+            firstName(){
+               this.fullName1=this.firstName+this.lastName;
+            }
+        }
+
+    })
+    vm.$watch('lastName',function(value){
+        this.fullName2=""+value;
+    })
+</script>
+</body>
+</html>

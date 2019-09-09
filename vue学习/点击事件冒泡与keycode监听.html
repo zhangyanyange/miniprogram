@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+    <div id="app">
+        <div style="height: 200px;width: 200px;background-color:blue" @click="outer">
+            <div style="height: 100px;width: 100px;background-color:red"  @click.stop="inner"></div>
+        </div>
+        <a href="https://www.baidu.com" @click.prevent="goto">百度</a>
+
+        <input type="text" @keyup.13="enter">
+    </div>
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<script>
+    new Vue({
+        el:"#app",
+        methods:{
+            outer(){
+                alert("outer");
+            },
+            inner(){
+                alert("inner");
+            },
+            goto(){
+                alert("去百度");
+            },
+            enter(){
+                alert("按了enter")
+            }
+        }
+    })
+</script>
+</body>
+</html>

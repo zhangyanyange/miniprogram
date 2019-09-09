@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+
+<div id="app">
+    v-for遍历数组
+    <ul v-for="(p,index) in persons" :key="index">
+     <li>{{index}}---{{p.name}}---{{p.age}}---<button @click="deleteP(index)">删除</button>---<button @click="updateP(index,
+     {name:'张三',age:20})">更新</button></li>
+    </ul>
+    v-for遍历对象
+    <ul v-for="(value,key) in persons[0]" :key="key">
+        <li>{{value}}---{{key}}</li>
+    </ul>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<script>
+ new Vue({
+     el:"#app",
+     data:{
+         persons:[
+             {
+                 name:"jack",
+                 age:14
+             },
+             {
+                 name:"tom",
+                 age:15
+             },
+             {
+                 name:"zoom",
+                 age:16
+             },
+             {
+                 name:"font",
+                 age:17
+             }
+         ]
+     },
+     methods:{
+         deleteP(index){
+             this.persons.splice(index,1);
+         },
+         updateP(index,newP){
+             this.persons.splice(index,1,newP);
+         }
+     }
+ })
+</script>
+</body>
+</html>

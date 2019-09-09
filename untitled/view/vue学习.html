@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+
+<div id="app">
+    //{{}}表达式
+<input type="text" v-model="msg">
+<div>{{msg.toUpperCase()}}</div>
+    //绑定语法
+    <div v-html="a"></div>
+    //强制数据绑定
+    <img :src="src">
+    //强制事件绑定
+    <button @click="test">点击</button>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<script>
+   const vm= new Vue({
+        el:"#app",
+       data:{
+            msg:"aa",
+            a:"<a href='https://www.baidu.com'>百度</a>",
+            src:"https://cn.vuejs.org/images/logo.png"
+       },
+       methods:{
+            test(){
+                alert("弹窗");
+            }
+       }
+    });
+</script>
+</body>
+</html>

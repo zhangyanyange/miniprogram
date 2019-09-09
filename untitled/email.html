@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <title>设置邮箱</title>
+</head>
+<link rel="stylesheet" href="node_modules/weui/dist/style/weui.css">
+
+<body>
+<div id="loadingToast" style="display:none;">
+    <div class="weui-toast">
+        <i class="weui-loading weui-icon_toast"></i>
+        <p class="weui-toast__content">获取邮箱</p>
+    </div>
+</div>
+
+<div id="dialog" style="display: none;">
+    <div class="weui-mask"></div>
+    <div class="weui-dialog">
+        <div class="weui-dialog__bd">邮箱设置成功</div>
+        <div class="weui-dialog__ft">
+            <a href="javascript:;" class="weui-dialog__btn weui-dialog__btn_primary">确定</a>
+        </div>
+    </div>
+</div>
+
+<div class="weui-cells__title">填写邮箱</div>
+<div class="weui-cells weui-cells_form">
+    <div class="weui-cell">
+        <div class="weui-cell__hd"><label class="weui-label">邮箱</label></div>
+        <div class="weui-cell__bd">
+            <input class="weui-input" pattern="[0-9]*" placeholder="请输入邮箱">
+        </div>
+    </div>
+</div>
+
+<div class="weui-btn-area">
+    <a class="weui-btn weui-btn_primary" href="javascript:" id="showTooltips">保存设置</a>
+</div>
+
+<script src="js/jquery.js">
+</script>
+<script>
+
+    $(function () {
+        var templateEmail = "";
+        //根据openid获取邮箱
+        $.ajax({
+            type: 'GET',
+            dataType: "json",
+            url: "https://v.gopas.com.cn/jiaqi/api/agent/GetUserEMail?openid=" +'@ViewData["openId"]'+"&companyid=1",
+            beforeSend: function (res) {
+                $("#loadingToast").show();
+            },
+            success: function (res) {
+                if (res.Success) {
+                    templateEmail = res.Datas.email;
+                    $(".weui-input").val(res.Datas.email)
+                } else {
+                    alert(JSON.stringify(res));
+                }
+            },
+            error: function (res) {
+                templateEmail = "";
+                alert(JSON.stringify(res));
+            },
+            complete: function () {
+                $("#loadingToast").hide();
+            }
+        })
+        //保存设置点击事件
+        $(".weui-btn-area").click(function () {
+            //读取input邮箱
+            let email = $(".weui-input").val();
+            if (templateEmail === email) {
+                alert("请不要重复设置相同的邮箱")
+                return
+            } else {
+                $(".weui-toast__content").val("设置邮箱");
+                //设置邮箱
+                $.ajax({
+                    type: 'GET',
+                    dataType: "json",
+                    url: "https://v.gopas.com.cn/jiaqi/api/agent/SetUserEMail?openid=" +'@ViewData["openId"]'+"&companyid=1&email"+email,
+                    beforeSend: function (res) {
+                        $("#loadingToast").show();
+                    },
+                    success: function (res) {
+                        if (res.Success) {
+                            $("#dialog").show()
+                        } else {
+                            alert(JSON.stringify(res));
+                        }
+                    },
+                    error: function (res) {
+                        templateEmail = "";
+                        alert(JSON.stringify(res));
+                    },
+                    complete: function () {
+                        $("#loadingToast").hide();
+                    }
+                })
+            }
+        })
+        //确定隐藏对话框
+        $(".weui-dialog__btn").click(function () {
+            $("#dialog").hide();
+        });
+    })
+</script>
+</body>
+</html>

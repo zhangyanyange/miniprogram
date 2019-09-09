@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Title</title>
+    <link rel="stylesheet" href="../css/weixin.css">
+    <link rel="stylesheet" href="../css/material_list2.css">
+</head>
+
+<div class="weui-search-bar" id="search_bar">
+    <form class="weui-search-bar__form">
+        <div class="weui-search-bar__box">
+            <i class="weui-icon-search"></i>
+            <input type="search" class="weui-search-bar__input" id="search_input" placeholder="搜索条码或名称" />
+
+        </div>
+        <label for="search_input" class="weui-search-bar__label" id="search_text">
+            <i class="weui-icon-search"></i>
+            <span>搜索</span>
+        </label>
+    </form>
+    <a href="javascript:" class="weui-search-bar__cancel-btn" id="search_cancel">搜索</a>
+</div>
+
+<div class="cell-container">
+
+</div>
+<script id="test" type="text/html">
+    <div class="weui-cells">
+        {{each list}}
+        <div class="weui-media-box weui-media-box_text" id={{$value.ID}}>
+        <div class="mf-flex-container">
+            <div class="mf-flex-item">
+                <h4 class="weui-media-box__title">{{$value.Name}} </h4>
+                <p class="weui-media-box__desc" style="margin-bottom:3px"> {{$value.ItemNumbers}} </p>
+                <p class="weui-media-box__desc" style="color: #d9534f;margin-bottom:3px">{{$value.BarCode}} </p>
+                <p class="weui-media-box__title" style="margin-bottom:3px">单价：<span class="text-danger"> {{$value.Price }} </span>
+                </p>
+                </div>
+            <div class="mf-flex-item">
+                <button id="mf_add" class="weui-btn weui-btn_mini weui-btn_primary" data-flag={{$value.ID}}>添加</button>
+                </div>
+            </div>
+        </div>
+        {{/each}}
+    </div>
+</script>
+<script src="../js/jquery.js"></script>
+<script src="../js/art-template.js"></script>
+<script>
+    $("#search_bar").click(function () {
+        $(".weui-search-bar__box").show();
+        $("#search_text").hide();
+        $("#search_cancel").show();
+    })
+
+    $(".weui-search-bar__cancel-btn").click(function () {
+        let searchValue = $(".weui-search-bar__input").val();
+        if(searchValue===""){
+            alert("请输入搜索内容");
+            return
+        }
+
+        $.ajax({
+            type: 'POST',
+            data: JSON.stringify({
+                openid: 'ojveK1WGjgy_FrFQCdEUT-mIQtTg',
+                key: searchValue,
+                pageindex: 1,
+                pagesize: 10000,
+                level: 3,
+            }),
+            dataType: 'json',
+            contentType: "application/json; charset=utf-8",
+            url: 'https://v.gopas.com.cn/jiaqi/api/Agent/GetProduce',
+            beforeSend: function (res) {
+                $("#loadingToast").show();
+            },
+            success: function (curPageData) {
+                for(var z=0;z<curPageData.Datas.length;z++){
+                    if(curPageData.Datas[z].BarCode===null){
+                        curPageData.Datas[z].BarCode="无条码"
+                    }
+                }
+                let data = {
+                    list:curPageData.Datas
+                }
+                var html = template('test', data);
+                $('.cell-container').html(html);
+            },
+            error: function(e) {
+
+            },
+            complete: function() {
+
+            }
+        })
+    });
+
+</script>
+</html>

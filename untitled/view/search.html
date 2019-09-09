@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+
+    <style>
+        .weui-search-bar__cancel-btn {
+            display: none;
+            margin-left: 10px;
+            line-height: 28px;
+            color: #09bb07;
+            white-space: nowrap
+        }
+        .weui-search-bar {
+            position: relative;
+            padding: 8px 10px;
+            display: -webkit-box;
+            display: -webkit-flex;
+            display: flex;
+            box-sizing: border-box;
+            background-color: #efeff4;
+            -webkit-text-size-adjust: 100%;
+            -webkit-box-align: center;
+            -webkit-align-items: center;
+            align-items: center
+        }
+
+        .weui-search-bar:before {
+            top: 0;
+            border-top: 1px solid #d7d6dc;
+            -webkit-transform-origin: 0 0;
+            transform-origin: 0 0;
+            -webkit-transform: scaleY(.5);
+            transform: scaleY(.5)
+        }
+
+        .weui-search-bar:after, .weui-search-bar:before {
+            content: " ";
+            position: absolute;
+            left: 0;
+            right: 0;
+            height: 1px;
+            color: #d7d6dc
+        }
+
+        .weui-search-bar:after {
+            bottom: 0;
+            border-bottom: 1px solid #d7d6dc;
+            -webkit-transform-origin: 0 100%;
+            transform-origin: 0 100%;
+            -webkit-transform: scaleY(.5);
+            transform: scaleY(.5)
+        }
+
+        .weui-search-bar__form {
+            position: relative;
+            -webkit-box-flex: 1;
+            -webkit-flex: auto;
+            flex: auto;
+            background-color: #efeff4
+        }
+
+        .weui-search-bar__form:after {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 200%;
+            height: 200%;
+            -webkit-transform: scale(.5);
+            transform: scale(.5);
+            -webkit-transform-origin: 0 0;
+            transform-origin: 0 0;
+            border-radius: 10px;
+            border: 1px solid #e6e6ea;
+            box-sizing: border-box;
+            background: #fff
+        }
+
+
+        .weui-search-bar__box {
+            position: relative;
+            padding-left: 30px;
+            padding-right: 30px;
+            height: 100%;
+            width: 100%;
+            box-sizing: border-box;
+            z-index: 1
+        }
+
+        .weui-search-bar__box {
+            padding: 4px 0;
+            width: 100%;
+            height: 1.42857143em;
+            border: 0;
+            font-size: 14px;
+            line-height: 1.42857143em;
+            box-sizing: content-box;
+            background: transparent
+        }
+
+        .weui-search-bar__box .weui-search-bar__input:focus {
+            outline: none
+        }
+
+        .weui-search-bar__box .weui-icon-search {
+            position: absolute;
+            top: 50%;
+            left: 10px;
+            margin-top: -14px;
+            line-height: 28px
+        }
+
+        .weui-search-bar__box .weui-icon-clear {
+            position: absolute;
+            top: 50%;
+            right: 0;
+            margin-top: -14px;
+            padding: 0 10px;
+            line-height: 28px
+        }
+    </style>
+</head>
+<body>
+
+<div class="weui-search-bar" id="search_bar">
+    <form class="weui-search-bar__form">
+        <div class="weui-search-bar__box">
+            <i class="weui-icon-search"></i>
+            <input type="search" class="weui-search-bar__input" id="search_input" placeholder="搜索条码或名称" />
+
+        </div>
+    </form>
+    <a href="javascript:" class="weui-search-bar__cancel-btn" id="search_cancel">搜索</a>
+</div>
+
+</body>
+</html>

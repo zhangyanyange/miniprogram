@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>订单详情</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="../css/base.css">
+    <link rel="stylesheet" href="../css/weixin.css">
+
+    <style>
+        body {
+            background-color: #ededed
+        }
+
+        .header {
+            position: fixed;
+            left: 0;
+            top: 0;
+            z-index: 999;
+            background-color: #F8F8F8;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+<div class="mq_container">
+
+    <div id="dialog1" style="display: none;">
+        <div class="weui-mask"></div>
+        <div class="weui-dialog">
+            <div class="weui-dialog__hd"><strong class="weui-dialog__title">数量异常</strong></div>
+            <div class="weui-dialog__bd">数量已超过或者小于发货数量的20%</div>
+            <div class="weui-dialog__ft">
+                <a href="javascript:;" id="confim" class="weui-dialog__btn weui-dialog__btn_default">确认</a>
+                <a href="javascript:;" id="cancel" class="weui-dialog__btn weui-dialog__btn_primary">取消</a>
+            </div>
+        </div>
+    </div>
+
+    <div id="loadingToast" style="display:none;">
+        <div class="weui-toast">
+            <i class="weui-loading weui-icon_toast"></i>
+            <p class="weui-toast__content">获取详情</p>
+        </div>
+    </div>
+
+    <div id="sendMaterial" style="display: none;">
+        <div class="weui-mask"></div>
+        <div class="weui-dialog">
+            <div class="weui-dialog__hd"><strong class="weui-dialog__title">操作成功</strong></div>
+            <div class="weui-dialog__bd">已对该单发货</div>
+            <div class="weui-dialog__ft">
+                <a href="javascript:;" id="sendConfim" class="weui-dialog__btn weui-dialog__btn_primary">确定</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="header">
+        <div class="page__hd" style="padding: 2px;">
+            <h2 class="page__title">总信息</h2>
+        </div>
+        <div class="weui-form-preview" id="jumbotron">
+            <div class="weui-form-preview__hd">
+                <div class="weui-form-preview__item">
+                    <label class="weui-form-preview__label">总价格</label>
+                    <em class="weui-form-preview__value" id="totalPrice" style="color:#ff0000"></em>
+                </div>
+            </div>
+            <div class="weui-form-preview__bd date">
+                <p>
+                    <label class="weui-form-preview__label">预计到货时间</label>
+                    <span class="weui-form-preview__value" id="time">2020-12-2</span>
+                </p>
+            </div>
+            <div id="remark">
+                <div class="weui-cells__title">备注</div>
+                <div class="weui-cells weui-cells_form">
+                    <div class="weui-cell">
+                        <div class="weui-cell__bd">
+                            <textarea class="weui-textarea" placeholder="请输入备注信息" rows="2"></textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="page__hd" style="padding: 2px;">
+            <h3 class="page__title">商品详情</h3>
+        </div>
+    </div>
+
+    <div id="orderDetail">
+
+    </div>
+    <a href="javascript:;" class="weui-btn weui-btn_block weui-btn_primary"
+       style="position:fixed;left:0;bottom: 0;width: 100%;">确认发货</a>
+</div>
+
+<script src="../js/jquery.js"></script>
+<script src="../js/art-template.js"></script>
+<script src="../view/sweetalert2.all.js"></script>
+<script src="../node_modules/weui.js/dist/weui.js"></script>
+
+<script id="list" type="text/html">
+    {{each Datas}}
+    <div class="weui-form-preview" style="margin-top: 2px">
+        <div class="weui-form-preview__hd">
+            <div class="weui-form-preview__item">
+                <label class="weui-form-preview__label">商品价格</label>
+                <em class="weui-form-preview__value" style="color:#ff0000">¥{{$value.Price}}</em>
+            </div>
+        </div>
+        <div class="weui-form-preview__bd">
+            <div class="weui-form-preview__item">
+                <label class="weui-form-preview__label">商品名称</label>
+                <span class="weui-form-preview__value">{{$value.Name}}</span>
+            </div>
+            <div class="weui-form-preview__item">
+                <label class="weui-form-preview__label">数量</label>
+                <span class="weui-form-preview__value shopCount" count="{{$value.newQty}}" index="{{$index}}">x{{$value.newQty}}</span>
+            </div>
+            <div class="weui-form-preview__item">
+                <label class="weui-form-preview__label">型号</label>
+                <span class="weui-form-preview__value">{{$value.Model}}</span>
+            </div>
+
+            <div class="weui-form-preview__ft">
+                <button id="downCode" type="submit" class="weui-form-preview__btn weui-form-preview__btn_primary"
+                        href="javascript:" value="{{$value.CodeUrl}}">下载防伪码
+                </button>
+                <button id="downDesign" type="submit" class="weui-form-preview__btn weui-form-preview__btn_primary"
+                        href="javascript:" value="{{$value.DesignUrl}}">下载设计文件
+                </button>
+            </div>
+        </div>
+    </div>
+    {{/each}}
+</script>
+<script>
+
+    $(function () {
+        var parse = {};
+        let state = 0;
+        var totalAmount = 0;
+        switch (state) {
+            case 0:
+                $(".date").on("click", function () {
+                    var split = parse.Datas[0].newArriveDate.split("-");
+                    let date = new Date();
+                    weui.datePicker({
+                        start: 1990, // 从今天开始
+                        end: "2030-10-20",
+                        cron: '* * *',
+                        defaultValue: [split[0], split[1], split[2]],
+                        onConfirm: function (result) {
+                            $("#time").text(result[0].value + "-" + result[1].value + "-" + result[2].value);
+                            parse.Datas[0].newArriveDate = result[0].value + "-" + result[1].value + "-" + result[2].value;
+                        },
+                        id: 'datePicker'
+                    });
+                });
+
+                //确认发货
+                $(".weui-btn_primary").click(function () {
+                    var remark = $(".weui-textarea").val();
+                    $("#weui-toast__content").text("确认发货");
+                    $("#loadingToast").show();
+                    var billentrys = [];
+                    for (var y = 0; y < parse.Datas.length; y++) {
+                        var billentry = {};
+                        billentry.entryid = parse.Datas[y].EntryId;
+                        billentry.goodnumbers = parse.Datas[y].GoodNumbers;
+                        billentry.numbers = parse.Datas[y].newQty;
+                        billentrys.push(billentry);
+                    }
+
+                  var z=  {
+                        openid: "oIIVi0YfN7348jc8Qqi13fa0Q8kA",
+                            companyid: 2,
+                        billno: "POORD001901",
+                        commitdate: parse.Datas[0].newArriveDate,
+                        plancommitdate: parse.Datas[0].ArriveDate,
+                        remark: remark,
+                        billentry: billentrys
+                    };
+                    console.log(JSON.stringify(z));
+                    // $.ajax({
+                    //     url: "https://v.gopas.com.cn/supplier/api/Supplier/SetDeliverGoods",
+                    //     method: "POST",
+                    //     data: {
+                    //         openid: "oIIVi0YfN7348jc8Qqi13fa0Q8kA",
+                    //         companyid: 2,
+                    //         billno: "POORD001901",
+                    //         commitdate: parse.Datas[0].newArriveDate,
+                    //         plancommitdate: parse.Datas[0].ArriveDate,
+                    //         remark: remark,
+                    //         billentry: billentrys
+                    //     },
+                    //     success: function (res) {
+                    //         var sendMaterial = JSON.parse(res);
+                    //         if(sendMaterial.Code === 200){
+                    //             $("#sendMaterial").show();
+                    //             $("#sendConfim").click(function () {
+                    //                 $("#sendMaterial").hide();
+                    //                 window.history.back(-1);
+                    //             })
+                    //         }else{
+                    //             alert(res);
+                    //         }
+                    //     },
+                    //     error: function (res) {
+                    //         alert(res);
+                    //     },
+                    //     complete() {
+                    //         $("#loadingToast").hide();
+                    //     }
+                    // })
+                });
+                getHeight();
+                break;
+
+            case 1:
+                $(".weui-btn_primary").text("收货完成");
+                //确认完成
+                $(".weui-btn_primary").click(function () {
+                    $("#weui-toast__content").text("收货完成");
+                    $("#loadingToast").show();
+
+                    $.ajax({
+                        url: "https://v.gopas.com.cn/supplier/api/Supplier/SetOverGoods",
+                        method: "POST",
+                        data: {
+                            openid: "oIIVi0YfN7348jc8Qqi13fa0Q8kA",
+                            companyid: 2,
+                            billno: "POORD001901"
+                        },
+                        success: function (res) {
+                            var changeState = JSON.parse(res);
+                            if(changeState.Code === 200){
+                                $(".weui-dialog__bd").text("该单已完成状态更改");
+                                $("#sendMaterial").show();
+                                $("#sendConfim").click(function () {
+                                    $("#sendMaterial").hide();
+                                    window.history.back(-1);
+                                })
+                            }else{
+                                alert(res);
+                            }
+                        },
+                        error: function (res) {
+                            alert(res);
+                        },
+                        complete() {
+                            $("#loadingToast").hide();
+                        }
+                    })
+                });
+                getHeight();
+                break;
+            case 2:
+                $("#remark").hide();
+                $(".weui-btn_primary").hide();
+                getHeight();
+                break;
+        }
+
+        $("#loadingToast").show();
+
+
+        //更改数量
+        function changeCount() {
+            $(".shopCount").on("click", function () {
+                var count = $(this).attr("count");
+                var index = $(this).attr("index");
+                var Qty = parse.Datas[index].Qty;
+                swal({
+                    title: '更改发货数量',
+                    input: 'number',
+                    inputPlaceholder: '填写发货数量',
+                    inputValue: count,
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                    showCancelButton: true,
+                    inputValidator: (value) => {
+                        if (value !== Qty) {
+                            if (value >= Qty * 1.2 || value <= Qty * 0.8) {
+                                $("#dialog1").show();
+                                $("#confim").click(function () {
+
+                                    $(".shopCount").eq(index).attr("count", value);
+                                    $(".shopCount").eq(index).text("x" + value);
+                                    parse.Datas[index].newQty = parseInt(value);
+                                    changeTotalMoney();
+                                    $("#dialog1").hide();
+                                });
+                                $("#cancel").click(function () {
+                                    $("#dialog1").hide();
+                                });
+
+                            } else {
+                                $(this).attr("count", value);
+                                $(this).text("x" + value);
+                                parse.Datas[index].newQty = parseInt(value);
+                                changeTotalMoney();
+                            }
+
+                        }
+
+                    }
+                });
+            })
+        }
+
+        function changeTotalMoney() {
+            totalAmount = 0;
+            for (var i = 0; i < parse.Datas.length; i++) {
+                totalAmount += parse.Datas[i].newQty * parse.Datas[i].Price;
+            }
+            $("#totalPrice").text("￥" + totalAmount);
+        }
+
+
+        function downloadFile() {
+            //下载防伪码
+            $("#downCode").on("click", function () {
+                var codeUrl = $(this).attr("value");
+                window.location.href = codeUrl;
+            });
+
+            //下载防伪码
+            $("#downDesign").on("click", function () {
+                var codeUrl = $(this).attr("value");
+                window.location.href = codeUrl;
+            });
+
+        }
+
+        $.ajax({
+            url: "https://v.gopas.com.cn/supplier//api/Supplier/GetOrderDetail",
+            method: "GET",
+            data: {
+                openid: "oIIVi0YfN7348jc8Qqi13fa0Q8kA",
+                companyid: 2,
+                billno: "POORD001901"
+            },
+            success: function (res) {
+                console.log(res);
+                parse = JSON.parse(res);
+                for (var z = 0; z < parse.Datas.length; z++) {
+                    parse.Datas[z].newQty = parse.Datas[z].Qty;
+                    parse.Datas[z].newArriveDate = parse.Datas[z].ArriveDate.substring(0, 10);
+                }
+                changeTotalMoney();
+                if (parse.Code === 200) {
+                    var html1 = template('list', parse);
+                    if (parse.Datas.length > 0) {
+                        $("#time").text(parse.Datas[0].newArriveDate);
+                    }
+                    $('#orderDetail').html(html1);
+                    if (state === 0) {
+                        changeCount();
+                    }
+                    downloadFile();
+                } else {
+                    neterror();
+                }
+
+            },
+            error: function (res) {
+                neterror();
+            },
+            complete() {
+                $("#loadingToast").hide();
+            }
+        })
+
+
+    });
+
+
+    function neterror() {
+        $('#loadingToast').hide();
+        $('#orderDetail').empty();
+        $('#orderDetail').html('<div style="width: 100%;height: 100%;text-align:center;"><img style="margin-top: 200px" src="../img/ic_error.page.jpg" width="200" height="150" alt="网络错误" class="error_page"></div>');
+        $(".weui-btn_primary").hide();
+        $(".header").hide();
+    }
+
+    function getHeight() {
+        var height1 = $(".weui-btn_primary").height() + 1;
+        var height = $('.header').height();
+        $('#orderDetail').css('margin-top', height);
+        $('#orderDetail').css('margin-bottom', height1);
+    }
+
+</script>
+</body>
+</html>

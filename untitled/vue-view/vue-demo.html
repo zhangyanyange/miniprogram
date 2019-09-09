@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:v-on="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+    <div id="app">
+        <ul v-for="value in array"><li>{{value}}</li></ul>
+        <hr>
+        <ul v-for="(v,k) in json"><li>{{v}} {{k}}</li></ul>
+        <br>
+        <input type="button" v-on:click="show()" value="显示/隐藏">
+        <br>
+        <input type="button" @click="add()" value="添加">
+        <div style="background-color: red;height: 70px;width: 70px;" v-show="isShow"></div>
+        <input type="text" @keydown.13="up()">
+        <br>
+        <div>
+            {{'msg'|uppercase}}
+        </div>
+        <div style="font-size: 20px"> </div>
+    </div>
+<!-- 开发环境版本，包含了有帮助的命令行警告 -->
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<script>
+    new Vue({
+        el:'#app',
+        data:{
+            isShow:true,
+            array:['apple','banaer','fruit'],
+            json:{'first':'apple','second':'banaer'}
+        },
+        methods: {
+            show: function () {
+               this.isShow=!this.isShow;
+            },
+            add: function () {
+                this.array.push('xigua');
+            },
+            up:function (ev) {
+                alert('弹出');
+            }
+        }
+    })
+</script>
+</body>
+</html>

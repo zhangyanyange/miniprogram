@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="../css/weixin.css">
+    <style>
+        body {
+            background-color: #ededed;
+
+        }
+        .weui-tab {
+            display: -webkit-box;
+            display: -webkit-flex;
+            display: flex;
+            height: 100%;
+            box-sizing: border-box;
+            -webkit-box-orient: vertical;
+            -webkit-box-direction: normal;
+            -webkit-flex-direction: column;
+            flex-direction: column;
+        }
+        .weui-tab__panel {
+            box-sizing: border-box;
+            -webkit-box-flex: 1;
+            -webkit-flex: 1;
+            flex: 1;
+            overflow: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+     .tarbar_click_color{
+         color:#09bb07
+     }
+     .tarbar_color{
+       color: #999 !important;
+     }
+     .pipai {
+         background-color: #ffffff;
+         border-bottom: 1px solid #999999;
+         color: #000;
+         font-weight: 700;
+         padding:5px;
+     }
+    </style>
+</head>
+<body>
+
+<div class="page__bd" style="height: 100vh;">
+    <div class="weui-tab">
+        <div class="pipai">
+
+        </div>
+
+        <div id="loadingToast" style="display:none;">
+            <div class="weui-toast">
+                <i class="weui-loading weui-icon_toast"></i>
+                <p class="weui-toast__content">获取订单</p>
+            </div>
+        </div>
+
+        <div id="allPinpai" style="display: none">
+            <div class="weui-mask" id="iosMask" style="opacity: 1;"></div>
+            <div class="weui-actionsheet weui-actionsheet_toggle" id="iosActionsheet">
+                <div class="weui-actionsheet__title">
+                    <p class="weui-actionsheet__title-text">品牌</p>
+                </div>
+                <div class="weui-actionsheet__menu">
+
+                </div>
+                <div class="weui-actionsheet__action">
+                    <div class="weui-actionsheet__cell" id="iosActionsheetCancel">取消</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="weui-tab__panel" id="all">
+            <div class="weui-cells" style="margin-top: 1px;" id="order_list">
+
+            </div>
+        </div>
+        <div class="weui-tabbar">
+            <a href="javascript:;" class="weui-tabbar__item weui-bar__item_on tarbar_first">
+                <img src="../img/click_chuli.png" alt="" class="weui-tabbar__icon">
+                <p class="weui-tabbar__label tarbar_click_color">待处理</p>
+            </a>
+            <a href="javascript:;" class="weui-tabbar__item tarbar_second">
+                <img src="../img/fahuo.png" alt="" class="weui-tabbar__icon">
+                <p class="weui-tabbar__label">待发货</p>
+            </a>
+            <a href="javascript:;" class="weui-tabbar__item tarbar_three">
+
+                        <img src="../img/wancheng.png" alt="" class="weui-tabbar__icon">
+                <p class="weui-tabbar__label">已完成</p>
+            </a>
+        </div>
+    </div>
+</div>
+</div>
+<script src="../js/jquery.js"></script>
+<script src="../js/art-template.js"></script>
+<script src="sweetalert2.all.js"></script>
+<script src="../node_modules/weui.js/dist/weui.js"></script>
+<script id="test" type="text/html">
+    {{each Datas}}
+    <div class="weui-actionsheet__cell" id="menu" index="{{$value.Id}}">{{$value.CompanyName}}</div>
+    {{/each}}
+ </script>
+
+<script id="list" type="text/html">
+    {{each Datas}}
+        <a class="weui-cell weui-cell_access" index="{{$value.BillNo}}" href="javascript:;">
+            <div class="weui-cell__bd">
+                <p>{{$value.BillNo}}</p>
+            </div>
+            <div class="weui-cell__ft">
+               {{$value.Date}}
+            </div>
+        </a>
+    {{/each}}
+</script>
+<script>
+    var companyId=-1;
+    var state=-1;
+    var height1 = $(".weui-tabbar").height();
+    console.log(height1);
+     $('#all').css('margin-bottom', height1);
+     $("#loadingToast").show();
+     $("#order_list").on("click",".weui-cell_access",function () {
+        var FBillNo= $(this).attr("index");
+        console.log(FBillNo);
+    });
+     function getOrderList(companyId,state) {
+         $.ajax({
+             url: 'https://v.gopas.com.cn/supplier/api/Supplier/GetOrderList',
+             data: {
+                 Openid: "oIIVi0YfN7348jc8Qqi13fa0Q8kA",
+                 companyid: companyId,
+                 state: state,
+                 index: 1,
+                 size: 10000
+             },
+             method: 'GET',
+             beforeSend(){
+                 $("#loadingToast").show();
+             },
+             success: function (res) {
+                 console.log(res)
+                 var parse = JSON.parse(res);
+                 if(parse.Code===200){
+                     var html1 = template('list', parse);
+                     $('#order_list').empty();
+                     $('#order_list').html(html1);
+
+                 }else{
+                     neterror();
+                 }
+
+             },
+             error: function (res) {
+                 neterror();
+             },
+             complete: function () {
+                 $("#loadingToast").hide();
+             }
+         })
+     }
+
+     $.ajax({
+        url: 'https://v.gopas.com.cn/supplier/api/Supplier/GetCompanies',
+        data: {
+            Openid: "oIIVi0YfN7348jc8Qqi13fa0Q8kA"
+        },
+        method: 'GET',
+        success: function (res) {
+            var company = JSON.parse(res);
+            var html = template('test', company);
+            $('.weui-actionsheet__menu').html(html);
+            $(".pipai").text("当前品牌:"+company.Datas[0].CompanyName);
+            $(".pipai").click(function () {
+                $("#allPinpai").show();
+            });
+            $('.weui-actionsheet__cell').on('click', function () {
+                 if(!("当前品牌:"+$(this).text()===$(".pipai").text())){
+                  if($(this).text()==="取消"){
+                      $("#allPinpai").hide();
+                  }else{
+                      $(".pipai").text("当前品牌:"+$(this).text());
+                      $("#allPinpai").hide();
+
+                     var index= $(this).attr("index");
+                      companyId=index;
+                      getOrderList(index,state);
+                  }
+                }else{
+                     $("#allPinpai").hide();
+                 }
+            }
+            );
+            companyId=company.Datas[0].Id;
+            state=0;
+            console.log(res)
+            getOrderList(company.Datas[0].Id,state);
+        },
+        error: function (res) {
+            $("#loadingToast").hide();
+            alert(JSON.parse(res).message());
+        },
+        complete:function () {
+
+        }
+    })
+    function neterror() {
+        $('#loadingToast').hide();
+        $('#order_list').empty();
+        $('#order_list').html('<div style="width: 100%;height: 100%;text-align:center;"><img style="margin-top: 200px" src="../img/ic_error.page.jpg" width="200" height="150" alt="网络错误" class="error_page"></div>');
+    }
+
+
+
+    $(".tarbar_first").click(function () {
+       if(!$(".tarbar_first").children("p").hasClass("tarbar_click_color")){
+           $(".tarbar_first").children("p").removeClass("tarbar_color");
+           $(".tarbar_first").children("p").addClass("tarbar_click_color");
+           $(".tarbar_first").children("img").attr("src","../img/click_chuli.png");
+
+           $(".tarbar_second").children("p").removeClass("tarbar_click_color");
+           $(".tarbar_second").children("img").attr("src","../img/fahuo.png");
+
+           $(".tarbar_three").children("p").removeClass("tarbar_click_color");
+           $(".tarbar_three").children("img").attr("src","../img/wancheng.png");
+           state=0;
+           getOrderList(companyId,state);
+       }
+    });
+    $(".tarbar_second").click(function () {
+        if(!$(".tarbar_second").children("p").hasClass("tarbar_click_color")){
+            $(".tarbar_second").children("p").addClass("tarbar_click_color");
+            $(".tarbar_second").children("img").attr("src","../img/click_fahuo.png");
+
+            $(".tarbar_first").children("p").removeClass("tarbar_click_color");
+            $(".tarbar_first").children("p").addClass("tarbar_color");
+            $(".tarbar_first").children("img").attr("src","../img/chuli.png");
+
+            $(".tarbar_three").children("p").removeClass("tarbar_click_color");
+            $(".tarbar_three").children("img").attr("src","../img/wancheng.png");
+            state=1;
+            getOrderList(companyId,state);
+        }
+    });
+    $(".tarbar_three").click(function () {
+        if(!$(".tarbar_three").children("p").hasClass("tarbar_click_color")){
+            $(".tarbar_three").children("p").addClass("tarbar_click_color");
+            $(".tarbar_three").children("img").attr("src","../img/click_wancheng.png");
+
+            $(".tarbar_first").children("p").removeClass("tarbar_click_color");
+            $(".tarbar_first").children("p").addClass("tarbar_color");
+            $(".tarbar_first").children("img").attr("src","../img/chuli.png");
+
+            $(".tarbar_second").children("p").removeClass("tarbar_click_color");
+            $(".tarbar_second").children("img").attr("src","../img/fahuo.png");
+            state=2;
+            getOrderList(companyId,state);
+        }
+    });
+</script>
+</body>
+</html>
